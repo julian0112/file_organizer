@@ -2,14 +2,17 @@ from os import listdir, path, mkdir
 from shutil import move
 from mimetypes import guess_type
 
-#DIRECTORIES
-source_dir = 'D:\Descargas'
+#Source Directory: where the files that need to be organized are 
+source_dir = 'D:\Descargas\Testing'
 files_to_organize = listdir(source_dir)
 
+#This function detects the type of file using the mimetypes library
 def detect_file_type(file_path):
     mime_type, encoding = guess_type(file_path)
     return mime_type
 
+#This function checks if there is already a folder in the source directory for the diferent types of files
+#If there is not a folder, it creates one
 def create_directory(source_dir, type):
     directory_type = path.join(source_dir, type)
     if not path.exists(directory_type):
@@ -17,38 +20,35 @@ def create_directory(source_dir, type):
         
     return directory_type
 
-# def organize_files(file):
+#This function organizes the files, it uses the file type to use in the create_directory function and determined the folder that needed to be selected or created
+#then moves the file in the selected folder
+def organize_files(file, file_type):
     
-#     secciones = file_type.split('/')
-
-#     dir = create_directory(source_dir, )
-#     move(path.join(source_dir, file), path.join(dir, file))
-
-#Check the files in the source directory, then checks the category in where the extemsion matches and sent the file to the respective folder
-# try:
-for file in files_to_organize:
-
-    file_dir = path.join(source_dir, file)
-    file_type = detect_file_type(file_dir)
+    sections = file_type.split('/')
+    match sections[0]:
+        case 'image':
+            dir = create_directory(source_dir, 'Images')
+        case 'application' | 'text':
+            dir = create_directory(source_dir, 'Documents')
+        case 'audio':
+            dir = create_directory(source_dir, 'Music')
+        case 'video':
+            dir = create_directory(source_dir, 'Video')
     
-    if file_type is None:
-            continue
+    move(path.join(source_dir, file), path.join(dir, file))
+
+#Check the files in the source directory and saves the location in the variable file_dir, then it uses this variable to check the type of file
+#if the file is NoneType it skips it, else it goes through the organize_files function.
+try:
+    for file in files_to_organize:
+
+        file_dir = path.join(source_dir, file)
+        file_type = detect_file_type(file_dir)
         
-    elif 'application' in file_type or 'text' in file_type:
-        doc_dir = create_directory(source_dir, 'Documents')
-        move(path.join(source_dir, file), path.join(doc_dir, file))
- 
-    elif 'image' in file_type:
-        img_dir = create_directory(source_dir, 'Images')
-        move(path.join(source_dir, file), path.join(img_dir, file))
-
-    elif 'audio' in file_type: 
-        music_dir = create_directory(source_dir, 'Music')
-        move(path.join(source_dir, file), path.join(music_dir, file))
+        if file_type is None:
+                continue
             
-    elif 'video' in file_type:
-        videos_dir = create_directory(source_dir, 'Videos')
-        move(path.join(source_dir, file), path.join(videos_dir, file))
+        organize_files(file, file_type)
         
-# except:
-#     print("Error")
+except:
+    print("Error")
